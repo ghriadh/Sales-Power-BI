@@ -25,6 +25,8 @@ Le rapport ne s'arrête pas à « combien a-t-on vendu ». Il répond à trois q
 
 **What-if :** les ventes réalisées à perte coûtent **81,3M**, soit plus de 3 fois le profit total (24,7M). Supprimer seulement 30 % de ces pertes **doublerait le profit**.
 
+![Key Insights](images/keyinsights.png)
+
 ---
 
 ## Pages du rapport
@@ -44,6 +46,16 @@ Le rapport ne s'arrête pas à « combien a-t-on vendu ». Il répond à trois q
 
 ![Watchlist](images/watchlist.png)
 ![Variance](images/variance.png)
+
+<details><summary><b>Autres captures</b></summary>
+
+![Markets](images/markets.png)
+![Customers](images/customers.png)
+![Churn & New Customers](images/churn%20and%20new.png)
+![Products](images/products.png)
+![Transactions](images/transactions.png)
+
+</details>
 
 ---
 
@@ -69,7 +81,7 @@ Comparer à l'entreprise évite un piège classique : quand toute l'activité ba
 ## Modèle de données et technique
 
 - **Modèle en étoile :** une table de faits (transactions) et quatre dimensions (dates, marchés, clients, produits), plus une table de sélection du KPI et une table what-if, non reliées.
-- **Power Query :** sources CSV avec un paramètre `DataFolder` (aucune base de données nécessaire), conversion USD → INR, corrections de qualité (casse d'un code produit, types de produits manquants → « Unknown », nom de marché en double).
+- **Power Query :** sources CSV lues depuis GitHub ou un dossier local via un paramètre `DataFolder` (aucune base de données nécessaire), conversion USD → INR, corrections de qualité (casse d'un code produit, types de produits manquants → « Unknown », nom de marché en double).
 - **Table de dates** marquée comme table de dates, hiérarchie `Calendar` personnalisée, date/heure automatique désactivée.
 - **DAX :** environ 135 mesures en 10 dossiers : intelligence temporelle (même période l'année précédente), effets prix / volume, Pareto, churn, tendance par rapport à l'entreprise, statuts, what-if.
 - Pages de **drillthrough**, navigation entre pages, signets, mise en forme conditionnelle pilotée par des mesures.
@@ -91,9 +103,10 @@ Comparer à l'entreprise évite un piège classique : quand toute l'activité ba
 
 ## Comment ouvrir le projet
 
-1. Téléchargez ou clonez ce dépôt et copiez le dossier `Sales_PBIP` dans `C:\` (le chemin par défaut des données est `C:\Sales_PBIP\data\`).
-2. Ouvrez `sales.pbip` avec **Power BI Desktop**.
-3. Si vous placez le dossier ailleurs : *Transformer les données → Gérer les paramètres → DataFolder* (le chemin doit se terminer par `\`), puis **Actualiser**.
+1. Clonez ou téléchargez ce dépôt, **dans n'importe quel dossier**.
+2. Ouvrez `sales.pbip` avec **Power BI Desktop** : le rapport s'affiche directement avec ses données (le cache du modèle est inclus).
+3. **Actualiser** relit les CSV depuis ce dépôt GitHub (connexion internet nécessaire ; à la première actualisation, choisissez l'accès *Anonyme*).
+4. Pour travailler hors ligne : *Transformer les données → Modifier les paramètres → DataFolder*, indiquez le chemin complet du dossier `data` (terminé par `\`), puis **Actualiser**.
 
 ## Contenu du dépôt
 

@@ -25,6 +25,8 @@ The report does not stop at "how much did we sell". It answers three business qu
 
 **What-if:** sales made at a loss cost **81.3M**, more than 3× the total profit (24.7M). Removing only 30% of these losses would **double the profit**.
 
+![Key Insights](images/keyinsights.png)
+
 ---
 
 ## Report pages
@@ -44,6 +46,16 @@ The report does not stop at "how much did we sell". It answers three business qu
 
 ![Watchlist](images/watchlist.png)
 ![Variance](images/variance.png)
+
+<details><summary><b>More screenshots</b></summary>
+
+![Markets](images/markets.png)
+![Customers](images/customers.png)
+![Churn & New Customers](images/churn%20and%20new.png)
+![Products](images/products.png)
+![Transactions](images/transactions.png)
+
+</details>
 
 ---
 
@@ -69,7 +81,7 @@ Comparing with the company avoids a classic trap: when the whole business falls 
 ## Data model and technique
 
 - **Star schema:** one fact table (transactions) and four dimensions (date, markets, customers, products), plus a disconnected KPI selector and a what-if table.
-- **Power Query:** CSV sources with a `DataFolder` parameter (no database needed), USD → INR conversion, data-quality fixes (product code case, missing product types → "Unknown", duplicated market name).
+- **Power Query:** CSV sources read from GitHub or a local folder through a `DataFolder` parameter (no database needed), USD → INR conversion, data-quality fixes (product code case, missing product types → "Unknown", duplicated market name).
 - **Date table** marked as a date table, custom `Calendar` hierarchy, auto date/time disabled.
 - **DAX:** about 135 measures in 10 display folders: time intelligence (same period last year), price / volume effects, Pareto, churn, trend vs company, statuses, what-if.
 - **Drill-through** pages, page navigation, bookmarks, conditional formatting driven by measures.
@@ -91,9 +103,10 @@ Comparing with the company avoids a classic trap: when the whole business falls 
 
 ## How to open the project
 
-1. Download or clone this repository and copy the `Sales_PBIP` folder to `C:\` (the default data path is `C:\Sales_PBIP\data\`).
-2. Open `sales.pbip` with **Power BI Desktop**.
-3. If you put the folder elsewhere: *Transform data → Manage parameters → DataFolder* (end the path with `\`), then **Refresh**.
+1. Clone or download this repository **into any folder**.
+2. Open `sales.pbip` with **Power BI Desktop**: the report opens with its data already loaded (the model cache is included).
+3. **Refresh** reads the CSV files from this GitHub repository (internet needed; on the first refresh, choose *Anonymous* access).
+4. To work offline: *Transform data → Edit parameters → DataFolder*, enter the full path of the `data` folder (ending with `\`), then **Refresh**.
 
 ## Repository content
 

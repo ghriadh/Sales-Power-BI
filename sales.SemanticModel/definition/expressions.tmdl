@@ -1,4 +1,4 @@
-expression DataFolder = "C:\Sales_PBIP\data\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression DataFolder = "https://raw.githubusercontent.com/ghriadh/Sales-Power-BI/main/data/" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: dd895495-ea83-45aa-b73d-7572ba0d7b2a
 
 	annotation PBI_ResultType = Text
