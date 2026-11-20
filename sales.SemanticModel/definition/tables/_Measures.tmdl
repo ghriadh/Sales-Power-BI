@@ -1,0 +1,913 @@
+table _Measures
+	lineageTag: df8ca36b-451d-419d-be09-5b4da7843c4f
+
+	/// Total sales amount, converted to INR
+	measure Revenue = SUM('mydata transactions'[sales_amount])
+		formatString: #,0
+		displayFolder: 1. Sales
+		lineageTag: f8000e50-ef48-4dc2-9635-d7ac236e5f94
+
+	measure Cost = SUM('mydata transactions'[cost_price])
+		formatString: #,0
+		displayFolder: 1. Sales
+		lineageTag: f272d7c8-d234-4b8e-92d4-4fd947703ed4
+
+	measure Profit = SUM('mydata transactions'[profit_margin])
+		formatString: #,0
+		displayFolder: 2. Profit
+		lineageTag: 3b599904-b10f-41ea-a4b5-bbaf5045ae3c
+
+	measure 'Profit Margin %' = DIVIDE([Profit], [Revenue])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 2. Profit
+		lineageTag: e17c6551-d52c-4443-a808-e81f1a1889d3
+
+	measure Quantity = SUM('mydata transactions'[sales_qty])
+		formatString: #,0
+		displayFolder: 1. Sales
+		lineageTag: 541a48c1-75d5-408c-abb4-59547606d8d8
+
+	/// Profit of the previous month (needs the date table marked as a date table)
+	measure 'Profit PM' = CALCULATE([Profit], DATEADD('mydata date'[date], -1, MONTH))
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: f20f88a2-5afb-4abe-b3ac-69aef6a514d2
+
+	measure 'Profit MoM Change' = [Profit] - [Profit PM]
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: c33dcd6a-e143-496c-80a8-f78fc5f354c1
+
+	measure 'Selected Customer Name' = SELECTEDVALUE('mydata customers'[customer_name], "All customers")
+		displayFolder: 7. Selection
+		lineageTag: 8d2e96e6-e76b-4d6a-b40a-ffc40e0c096d
+
+	measure 'Selected Market Name' = SELECTEDVALUE('mydata markets'[markets_name], "All markets")
+		displayFolder: 7. Selection
+		lineageTag: 20a609d9-853c-407b-a3a3-10e4460d9fc4
+
+	/// 1 when exactly one year is selected in the slicer
+	measure 'Single Year Selected' = INT(HASONEFILTER('mydata date'[year]))
+		formatString: 0
+		displayFolder: 7. Selection
+		lineageTag: 3b409332-0148-4323-ac2b-16afef5232e3
+
+	/// Number of transaction lines
+	measure Transactions = COUNTROWS('mydata transactions')
+		formatString: #,0
+		displayFolder: 1. Sales
+		lineageTag: 6df563cb-b83c-4f42-a44b-9bb354cf6c56
+
+	measure 'Profit Share % (Market)' = DIVIDE([Profit], CALCULATE([Profit], ALLSELECTED('mydata markets')))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Contribution
+		lineageTag: 3610918f-e2f5-4888-8bdd-6a001dcece4f
+
+	measure 'Revenue Share % (Customer)' = DIVIDE([Revenue], CALCULATE([Revenue], ALLSELECTED('mydata customers')))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Contribution
+		lineageTag: e3aa6c81-6596-4cbe-8fe9-d97e84295568
+
+	measure 'Profit Share % (Customer)' = DIVIDE([Profit], CALCULATE([Profit], ALLSELECTED('mydata customers')))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Contribution
+		lineageTag: f2df6867-a74b-4085-a1b3-118de75dce0e
+
+	/// Share of the revenue of the markets shown in the visual (respects slicers)
+	measure 'Revenue Share % (Market)' = DIVIDE([Revenue], CALCULATE([Revenue], ALLSELECTED('mydata markets')))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Contribution
+		lineageTag: e9c4b8c9-f74e-4e46-b0ce-8796e268e9bf
+
+	measure 'Revenue Share % (Product)' = DIVIDE([Revenue], CALCULATE([Revenue], ALLSELECTED('mydata products')))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Contribution
+		lineageTag: 642b8172-def1-4361-8da6-8fc86f7156f9
+
+	measure 'Profit Share % (Product)' = DIVIDE([Profit], CALCULATE([Profit], ALLSELECTED('mydata products')))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 4. Contribution
+		lineageTag: 6bce3dde-d05a-41b5-933f-743f78e26cfd
+
+	measure 'Selected Year' = SELECTEDVALUE('mydata date'[year])
+		formatString: 0
+		displayFolder: 7. Selection
+		lineageTag: 390135b3-797f-4964-9aa8-1cfcd036679c
+
+	measure 'Selected Month' = SELECTEDVALUE('mydata date'[month_name])
+		displayFolder: 7. Selection
+		lineageTag: 7bedeef3-f87e-46f4-9c59-a48901e6bf94
+
+	/// Bar colour used in charts: orange when the margin is negative, blue otherwise
+	measure 'Margin Color' = IF([Profit Margin %] < 0, "#E8833A", "#118DFF")
+		displayFolder: 2. Profit
+		lineageTag: 7b418c43-aad3-4140-b85f-4611f6aaa23f
+
+	/// Share of transaction lines sold at a loss
+	measure 'Loss-Making Lines %' = DIVIDE(CALCULATE([Transactions], 'mydata transactions'[profit_margin] < 0), [Transactions])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 2. Profit
+		lineageTag: 0ba842c9-1081-44cf-9732-f8524c015ef3
+
+	/// Number of products with a negative total profit in the current selection
+	measure 'Loss-Making Products' = COALESCE(COUNTROWS(FILTER(VALUES('mydata products'[product_code]), [Profit] < 0)), 0)
+		formatString: #,0
+		displayFolder: 2. Profit
+		lineageTag: a7f348e9-7ae0-470b-a695-11360228ec60
+
+	/// Total profit of the loss-making products (a negative number)
+	measure 'Loss from Loss-Making Products' = SUMX(FILTER(VALUES('mydata products'[product_code]), [Profit] < 0), [Profit])
+		formatString: #,0
+		displayFolder: 2. Profit
+		lineageTag: b31163f4-3ef5-4e36-9ef0-82e70f766002
+
+	measure 'Revenue YTD' = TOTALYTD([Revenue], 'mydata date'[date])
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: a9f8ad02-53f1-46a9-a2f7-32166177c9ef
+
+	/// Revenue of the same period one year earlier (fair comparison for partial years)
+	measure 'Revenue PY' = IF(HASONEVALUE('mydata date'[year]), CALCULATE([Revenue], SAMEPERIODLASTYEAR('mydata date'[date])))
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: ac393ec5-db01-4e37-928f-3bd376533d49
+
+	measure 'Revenue YoY %' = DIVIDE([Revenue] - [Revenue PY], [Revenue PY])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 3. Time Intelligence
+		lineageTag: 8bb1cd4d-ee1d-478b-9eb0-d521d28f7aa1
+
+	/// Rank of the customer by revenue (1 = biggest customer)
+	measure 'Customer Revenue Rank' = IF(NOT ISBLANK([Revenue]), RANKX(ALLSELECTED('mydata customers'), [Revenue], , DESC, DENSE))
+		formatString: 0
+		displayFolder: 5. Pareto
+		lineageTag: e4ce0f46-a558-4ec2-a8fe-b0557f0359af
+
+	/// Pareto: cumulative share of revenue of this customer and all bigger customers
+	measure 'Customer Cumulative Revenue %' =
+			VAR CurrentRevenue = [Revenue]
+			VAR CustomerRevenue =
+			    ADDCOLUMNS(ALLSELECTED('mydata customers'), "@Revenue", [Revenue])
+			VAR CumulativeRevenue =
+			    SUMX(FILTER(CustomerRevenue, [@Revenue] >= CurrentRevenue), [@Revenue])
+			VAR TotalRevenue = SUMX(CustomerRevenue, [@Revenue])
+			RETURN
+			    IF(NOT ISBLANK(CurrentRevenue), DIVIDE(CumulativeRevenue, TotalRevenue))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Pareto
+		lineageTag: 18028da9-7b11-4a2d-b68a-d288662849d7
+
+	/// Pareto: cumulative share of revenue of this product and all bigger products
+	measure 'Product Cumulative Revenue %' =
+			VAR CurrentRevenue = [Revenue]
+			VAR ProductRevenue =
+			    ADDCOLUMNS(ALLSELECTED('mydata products'), "@Revenue", [Revenue])
+			VAR CumulativeRevenue =
+			    SUMX(FILTER(ProductRevenue, [@Revenue] >= CurrentRevenue), [@Revenue])
+			VAR TotalRevenue = SUMX(ProductRevenue, [@Revenue])
+			RETURN
+			    IF(NOT ISBLANK(CurrentRevenue), DIVIDE(CumulativeRevenue, TotalRevenue))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Pareto
+		lineageTag: 7061fb54-497e-478a-b244-2772c17aef4e
+
+	/// Customers with at least one transaction in the current selection
+	measure 'Active Customers' = DISTINCTCOUNT('mydata transactions'[customer_code])
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: b070de57-623b-4207-9871-ecd9dc7a5963
+
+	/// Last order date in the whole dataset
+	measure 'Last Data Date' = CALCULATE(MAX('mydata transactions'[order_date]), REMOVEFILTERS())
+		formatString: dd-mm-yyyy
+		displayFolder: 6. Customers & Churn
+		lineageTag: caac56c1-9a69-4227-bc28-d7cb813d5312
+
+	/// A customer with no order in the last 6 months of data is considered churned
+	measure 'Churn Cutoff Date' = EDATE([Last Data Date], -6)
+		formatString: dd-mm-yyyy
+		displayFolder: 6. Customers & Churn
+		lineageTag: 9365f59e-d31a-4d13-ab4c-3298e503b8b8
+
+	/// First order of the customer (ignores the date slicers, respects market and customer filters)
+	measure 'Customer First Order' = CALCULATE(MIN('mydata transactions'[order_date]), REMOVEFILTERS('mydata date'))
+		formatString: dd-mm-yyyy
+		displayFolder: 6. Customers & Churn
+		lineageTag: b6712561-c732-43d8-b190-e0aabb6f749a
+
+	/// Last order of the customer (ignores the date slicers, respects market and customer filters)
+	measure 'Customer Last Order' = CALCULATE(MAX('mydata transactions'[order_date]), REMOVEFILTERS('mydata date'))
+		formatString: dd-mm-yyyy
+		displayFolder: 6. Customers & Churn
+		lineageTag: 6af37bdd-22a7-4871-9343-a097085cb53e
+
+	measure 'Is Churned' =
+			VAR LastOrder = [Customer Last Order]
+			RETURN
+			    IF(NOT ISBLANK(LastOrder) && LastOrder < [Churn Cutoff Date], 1)
+		formatString: 0
+		displayFolder: 6. Customers & Churn
+		lineageTag: f9bf98bb-bf4e-429d-b608-9efbd66fb9fb
+
+	measure 'Is New' =
+			VAR FirstOrder = [Customer First Order]
+			RETURN
+			    IF(NOT ISBLANK(FirstOrder) && FirstOrder >= [Churn Cutoff Date], 1)
+		formatString: 0
+		displayFolder: 6. Customers & Churn
+		lineageTag: cb1a4626-57b6-49e3-843d-a57f654daa2d
+
+	/// Last order date, shown only for churned customers
+	measure 'Churned Customer Last Order' = IF([Is Churned] = 1, [Customer Last Order])
+		formatString: dd-mm-yyyy
+		displayFolder: 6. Customers & Churn
+		lineageTag: e6bc7b10-d249-4eeb-9a5b-f751d6a4cba9
+
+	/// First order date, shown only for new customers
+	measure 'New Customer First Order' = IF([Is New] = 1, [Customer First Order])
+		formatString: dd-mm-yyyy
+		displayFolder: 6. Customers & Churn
+		lineageTag: f16eb702-df31-42ae-8e3f-e867d622bf50
+
+	/// Customers lost completely (no order in any market of the selection since the cutoff)
+	measure 'Churned Customers' = COALESCE(COUNTROWS(FILTER(VALUES('mydata customers'[customer_code]), [Is Churned] = 1)), 0)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 5ad7dce4-240a-47b7-8af6-c545a93f043f
+
+	/// Customers whose first order is after the cutoff
+	measure 'New Customers' = COALESCE(COUNTROWS(FILTER(VALUES('mydata customers'[customer_code]), [Is New] = 1)), 0)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: a1257ab8-a535-4a55-87bc-33e5b209be77
+
+	/// Customer-market relationships with no order since the cutoff
+	measure 'Lost Customer-Market Pairs' =
+			VAR Cutoff = [Churn Cutoff Date]
+			VAR Pairs =
+			    CALCULATETABLE(
+			        SUMMARIZE('mydata transactions', 'mydata customers'[customer_code], 'mydata markets'[markets_code]),
+			        REMOVEFILTERS('mydata date')
+			    )
+			RETURN
+			    COALESCE(COUNTROWS(FILTER(Pairs, [Customer Last Order] < Cutoff)), 0)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 17d1b307-dacd-4883-996f-930aec478421
+
+	/// Customer-market relationships that started after the cutoff
+	measure 'New Customer-Market Pairs' =
+			VAR Cutoff = [Churn Cutoff Date]
+			VAR Pairs =
+			    CALCULATETABLE(
+			        SUMMARIZE('mydata transactions', 'mydata customers'[customer_code], 'mydata markets'[markets_code]),
+			        REMOVEFILTERS('mydata date')
+			    )
+			RETURN
+			    COALESCE(COUNTROWS(FILTER(Pairs, [Customer First Order] >= Cutoff)), 0)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 01e94732-f740-410a-8294-37564c450c0f
+
+	measure 'Customers Before Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE(DISTINCTCOUNT('mydata transactions'[customer_code]), REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] < Cutoff)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 82e04dab-1587-4485-8f15-f6a3f21768b0
+
+	measure 'Customers Since Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE(DISTINCTCOUNT('mydata transactions'[customer_code]), REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= Cutoff)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 982f936d-d6da-47f1-bfa9-b16ce97c9de0
+
+	measure 'Orders Before Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Transactions], 'mydata transactions'[order_date] < Cutoff)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 030204c6-a477-4913-a9d8-bdb573497a25
+
+	measure 'Orders Since Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Transactions], 'mydata transactions'[order_date] >= Cutoff)
+		formatString: #,0
+		displayFolder: 6. Customers & Churn
+		lineageTag: 207a8b73-f6c4-49c9-933e-d25af8f2a338
+
+	/// Average revenue of one transaction line (average ticket)
+	measure 'Revenue per Transaction' = DIVIDE([Revenue], [Transactions])
+		formatString: #,0
+		displayFolder: 1. Sales
+		lineageTag: 8278affb-ec68-43f6-b7e6-b9558821172c
+
+	measure 'Quantity per Transaction' = DIVIDE([Quantity], [Transactions])
+		formatString: #,0.0
+		displayFolder: 1. Sales
+		lineageTag: 83cfe14c-6524-4ca4-b413-3a0eb9b4bf10
+
+	/// Average selling price of one unit
+	measure 'Avg Unit Price' = DIVIDE([Revenue], [Quantity])
+		formatString: #,0
+		displayFolder: 1. Sales
+		lineageTag: 3e3a5732-2785-4589-b3ff-bbd0f1a33df6
+
+	/// Share of the transactions of the current order-size bucket
+	measure 'Transactions % of Total' = DIVIDE([Transactions], CALCULATE([Transactions], REMOVEFILTERS('mydata transactions'[Order Size], 'mydata transactions'[Order Size Rank])))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1. Sales
+		lineageTag: 9637cdf9-6f1d-49fe-9081-437737ebf9fb
+
+	measure 'Revenue % of Total' = DIVIDE([Revenue], CALCULATE([Revenue], REMOVEFILTERS('mydata transactions'[Order Size], 'mydata transactions'[Order Size Rank])))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 1. Sales
+		lineageTag: 220c9a4b-666a-4875-81ce-770c35a0babf
+
+	/// Same months of the previous year (only when one year is selected)
+	measure 'Quantity PY' = IF(HASONEVALUE('mydata date'[year]), CALCULATE([Quantity], SAMEPERIODLASTYEAR('mydata date'[date])))
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: 1aecd97d-e8ce-464c-b4f4-25a07cddec07
+
+	measure 'Avg Unit Price PY' = DIVIDE([Revenue PY], [Quantity PY])
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: ff170e74-f81d-449c-8686-eea7d518dad3
+
+	measure 'Profit PY' = IF(HASONEVALUE('mydata date'[year]), CALCULATE([Profit], SAMEPERIODLASTYEAR('mydata date'[date])))
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: f4fdcfc3-c545-4038-8ef7-204d8dc35cb4
+
+	measure 'Revenue Change' = IF(NOT ISBLANK([Revenue PY]), [Revenue] - [Revenue PY])
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: 0d09de0f-8927-4f19-aec6-cdd692cafa27
+
+	measure 'Profit Change' = IF(NOT ISBLANK([Profit PY]), [Profit] - [Profit PY])
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: 99b62b5b-911e-4c6b-94fe-0ddd68105b10
+
+	/// Part of the revenue change explained by the change in quantities (at last year's price)
+	measure 'Volume Effect' = IF(NOT ISBLANK([Quantity PY]), ([Quantity] - [Quantity PY]) * [Avg Unit Price PY])
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: ac1edb77-ace0-43f7-a917-882f0459e7b2
+
+	/// Part of the revenue change explained by the change in the average unit price (price and mix)
+	measure 'Price Effect' = IF(NOT ISBLANK([Quantity PY]), ([Avg Unit Price] - [Avg Unit Price PY]) * [Quantity])
+		formatString: #,0
+		displayFolder: 3. Time Intelligence
+		lineageTag: c44b324a-1ef4-4533-9256-184edcf35b0f
+
+	measure 'Change Color' = IF([Profit Change] < 0, "#E8833A", "#2E9E5B")
+		displayFolder: 3. Time Intelligence
+		lineageTag: 92cd5847-5b02-4a88-b4d8-f6d654714eb1
+
+	measure 'Revenue Change Color' = IF([Revenue Change] < 0, "#E8833A", "#2E9E5B")
+		displayFolder: 3. Time Intelligence
+		lineageTag: e1edffe3-f395-4ede-96e2-4e29de1bbc8f
+
+	/// Value of the KPI chosen with the KPI buttons, ranked from the biggest: cumulative share (Pareto)
+	measure 'Customer Cumulative KPI %' =
+			VAR CurrentValue = [KPI Value]
+			VAR Items = ADDCOLUMNS(ALLSELECTED('mydata customers'), "@Value", [KPI Value])
+			VAR Cumulative = SUMX(FILTER(Items, [@Value] >= CurrentValue), [@Value])
+			RETURN
+			    IF(NOT ISBLANK(CurrentValue), DIVIDE(Cumulative, SUMX(Items, [@Value])))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Pareto
+		lineageTag: 16d53af7-af9a-4e00-b779-07574ec385d9
+
+	measure 'Product Cumulative KPI %' =
+			VAR CurrentValue = [KPI Value]
+			VAR Items = ADDCOLUMNS(ALLSELECTED('mydata products'), "@Value", [KPI Value])
+			VAR Cumulative = SUMX(FILTER(Items, [@Value] >= CurrentValue), [@Value])
+			RETURN
+			    IF(NOT ISBLANK(CurrentValue), DIVIDE(Cumulative, SUMX(Items, [@Value])))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 5. Pareto
+		lineageTag: 60a5a52d-a2ef-4295-b587-bff942f1d79b
+
+	measure 'Ranking Title Markets' = [Selected KPI] & " by Market  (orange = loss-making)"
+		displayFolder: 7. Selection
+		lineageTag: ea7ee436-8833-49d6-8533-a1b3a2ce3146
+
+	measure 'Ranking Title Customers' = [Selected KPI] & " by Customer  (orange = loss-making)"
+		displayFolder: 7. Selection
+		lineageTag: a929a9d8-aed0-490b-9235-dab80f5f6300
+
+	measure 'Ranking Title Products' = [Selected KPI] & " by Product  (orange = loss-making)"
+		displayFolder: 7. Selection
+		lineageTag: 40064a73-e813-4099-8d1d-2693556e90a4
+
+	measure 'Pareto Title Customers' = "Pareto: " & [Selected KPI] & " concentration by customer"
+		displayFolder: 7. Selection
+		lineageTag: 38f5e19b-de30-4dbb-8530-1fd721f18217
+
+	measure 'Pareto Title Products' = "Pareto: " & [Selected KPI] & " concentration by product"
+		displayFolder: 7. Selection
+		lineageTag: e1f5e48b-d6a5-4a78-a72b-510d31b36a19
+
+	measure 'Selected Product Name' = SELECTEDVALUE('mydata products'[product_code], "All products")
+		displayFolder: 7. Selection
+		lineageTag: 3d282b1b-0a70-4587-aa38-a6004f23a37e
+
+	/// Last order date ignoring the date slicers (works for markets, customers and products)
+	measure 'Last Order Date' = CALCULATE(MAX('mydata transactions'[order_date]), REMOVEFILTERS('mydata date'))
+		formatString: dd-mm-yyyy
+		displayFolder: 8. Watchlist
+		lineageTag: dfa4bb10-e686-4f3a-aa01-078af049ac9e
+
+	measure 'Days Since Last Order' =
+			VAR LastOrder = [Last Order Date]
+			RETURN
+			    IF(NOT ISBLANK(LastOrder), DATEDIFF(LastOrder, [Last Data Date], DAY))
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 41fca0fa-19d8-474c-81bc-c938b12e4936
+
+	/// Number of months between the first order of the dataset and the cutoff
+	measure 'Months Before Cutoff' =
+			VAR StartDate = CALCULATE(MIN('mydata transactions'[order_date]), REMOVEFILTERS())
+			RETURN
+			    DATEDIFF(StartDate, [Churn Cutoff Date], DAY) / 30.4
+		formatString: 0.0
+		displayFolder: 8. Watchlist
+		lineageTag: ee61b094-720d-4ce7-8345-973a25a48dce
+
+	measure 'Avg Monthly Revenue Before Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    DIVIDE(CALCULATE([Revenue], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] < Cutoff), [Months Before Cutoff])
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 2fcad697-f902-4216-8773-7989389fa18e
+
+	measure 'Avg Monthly Revenue Since Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    DIVIDE(CALCULATE([Revenue], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= Cutoff), 6)
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 51639ada-22a9-4afe-ab79-b0f6ef17c7d6
+
+	/// Average monthly revenue of the last 6 months compared with the average month before
+	measure 'Revenue Trend %' =
+			VAR BeforeCutoff = [Avg Monthly Revenue Before Cutoff]
+			RETURN
+			    IF(NOT ISBLANK(BeforeCutoff), DIVIDE(COALESCE([Avg Monthly Revenue Since Cutoff], 0) - BeforeCutoff, BeforeCutoff))
+		formatString: +0%;-0%;0%
+		displayFolder: 8. Watchlist
+		lineageTag: 6f5e3a05-2e48-4008-8dcd-a7beba291732
+
+	measure 'Avg Monthly Orders Before Cutoff' = DIVIDE([Orders Before Cutoff Global], [Months Before Cutoff])
+		formatString: #,0.0
+		displayFolder: 8. Watchlist
+		lineageTag: 39e2fe58-5ec8-450a-b735-c5c09948a272
+
+	measure 'Avg Monthly Orders Since Cutoff' = DIVIDE([Orders Since Cutoff Global], 6)
+		formatString: #,0.0
+		displayFolder: 8. Watchlist
+		lineageTag: 470e4b99-dab5-450f-8f42-b2520c6e01fb
+
+	measure 'Orders Before Cutoff Global' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Transactions], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] < Cutoff)
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: b26b8de2-f2d5-4d32-8ec2-cdb92f3c20e1
+
+	measure 'Orders Since Cutoff Global' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Transactions], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= Cutoff)
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: f9df2e80-508c-431b-a73b-54e482172556
+
+	/// Average monthly orders of the last 6 months compared with the average month before
+	measure 'Order Trend %' =
+			VAR BeforeCutoff = [Avg Monthly Orders Before Cutoff]
+			RETURN
+			    IF(NOT ISBLANK(BeforeCutoff) && BeforeCutoff > 0, DIVIDE(COALESCE([Avg Monthly Orders Since Cutoff], 0) - BeforeCutoff, BeforeCutoff))
+		formatString: +0%;-0%;0%
+		displayFolder: 8. Watchlist
+		lineageTag: 3853ffc9-23b1-4e76-9c3f-66407b0146c8
+
+	measure 'Trend Color' =
+			VAR T = [Order Trend %]
+			RETURN
+			    SWITCH(TRUE(), T < -0.3, "#E8833A", T < 0, "#C9A227", "#2E9E5B")
+		displayFolder: 8. Watchlist
+		lineageTag: 4a3c584d-d5f0-4aa0-a65a-8b9b5c943ace
+
+	measure 'Revenue Trend Color' =
+			VAR T = [Revenue Trend %]
+			RETURN
+			    SWITCH(TRUE(), T < -0.25, "#E8833A", T < 0, "#C9A227", "#2E9E5B")
+		displayFolder: 8. Watchlist
+		lineageTag: f2102714-d5a6-445f-aa71-11f943e6d9c5
+
+	/// Inactive = no order for 90 days; Losing money = negative margin; Declining = monthly revenue down more than 25%
+	measure 'Market Status' =
+			VAR DaysSince = [Days Since Last Order]
+			VAR AllTimeMargin = CALCULATE([Profit Margin %], REMOVEFILTERS('mydata date'))
+			VAR GapTrend = [Revenue Trend vs Company]
+			VAR GapYoY = [Revenue YoY vs Company]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(DaysSince), BLANK(),
+			        DaysSince > 90, "Inactive",
+			        AllTimeMargin < 0, "Losing money",
+			        GapTrend < -10 && GapYoY < -10, "Declining",
+			        GapTrend < -10 || GapYoY < -10, "To watch",
+			        GapTrend > 10 && GapYoY > 10, "Outperforming",
+			        [Revenue Trend %] < 0, "Down with the company",
+			        "Stable"
+			    )
+		displayFolder: 8. Watchlist
+		lineageTag: 6456e455-8c8f-44ff-8b6a-6f1d642cf7b8
+
+	measure 'Status Color' = [Any Status Color]
+		displayFolder: 8. Watchlist
+		lineageTag: d79354f5-a2c3-4b61-a475-a31be081c6d5
+
+	measure 'All-Time Margin %' = CALCULATE([Profit Margin %], REMOVEFILTERS('mydata date'))
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 8. Watchlist
+		lineageTag: 050f3b0c-e6f0-423f-9818-6cc12371a4f1
+
+	measure 'Inactive Markets' = COALESCE(COUNTROWS(FILTER(VALUES('mydata markets'[markets_name]), [Market Status] = "Inactive")), 0)
+		formatString: 0
+		displayFolder: 8. Watchlist
+		lineageTag: cf6b67cd-934e-4f21-8324-ba8ae99b4bba
+
+	measure 'Loss-Making Markets' = COALESCE(COUNTROWS(FILTER(VALUES('mydata markets'[markets_name]), [All-Time Margin %] < 0)), 0)
+		formatString: 0
+		displayFolder: 8. Watchlist
+		lineageTag: 04d6b422-03e4-4154-8379-8987ee8353c3
+
+	measure 'Declining Markets' = COALESCE(COUNTROWS(FILTER(VALUES('mydata markets'[markets_name]), [Market Status] = "Declining")), 0)
+		formatString: 0
+		displayFolder: 8. Watchlist
+		lineageTag: 739714ad-a11d-4b3d-b2fb-a5a7387872b8
+
+	/// A customer is at risk when its average monthly orders dropped more than 30% in the last 6 months
+	measure 'Customers At Risk' = COALESCE(COUNTROWS(FILTER(VALUES('mydata customers'[customer_name]), [Order Trend %] < -0.3)), 0)
+		formatString: 0
+		displayFolder: 8. Watchlist
+		lineageTag: 634e28b0-227b-4a86-8f7c-945fdb486666
+
+	measure 'At-Risk Orders/Month Before' = IF([Order Trend %] < -0.3, [Avg Monthly Orders Before Cutoff])
+		formatString: #,0.0
+		displayFolder: 8. Watchlist
+		lineageTag: 16443f65-ecbb-4e28-aba2-3e4b489ca7c2
+
+	measure 'At-Risk Orders/Month Since' = IF([Order Trend %] < -0.3, COALESCE([Avg Monthly Orders Since Cutoff], 0))
+		formatString: #,0.0
+		displayFolder: 8. Watchlist
+		lineageTag: 6b0763b5-d6d3-460d-b2d0-eb551a95902e
+
+	measure 'At-Risk Order Trend %' = IF([Order Trend %] < -0.3, [Order Trend %])
+		formatString: +0%;-0%;0%
+		displayFolder: 8. Watchlist
+		lineageTag: db426c7f-76a2-4cc0-8f9d-537568db6450
+
+	measure 'All-Time Profit' = CALCULATE([Profit], REMOVEFILTERS('mydata date'))
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: dd45e402-4e67-49fe-a5d1-c7ccb1520473
+
+	/// One-off = the loss comes from 3 sales or fewer; Recurring = sold at a loss again and again
+	measure 'Loss Type' =
+			VAR P = [All-Time Profit]
+			VAR LossSales = CALCULATE([Transactions], REMOVEFILTERS('mydata date'), 'mydata transactions'[profit_margin] < 0)
+			RETURN
+			    IF(P < 0, IF(LossSales <= 3, "One-off loss", "Recurring loss"))
+		displayFolder: 8. Watchlist
+		lineageTag: 2b9fffec-965f-45ee-8b7b-9e8ed3dc9849
+
+	measure 'Loss Type Color' = IF([Loss Type] = "One-off loss", "#7F3FBF", "#E8833A")
+		displayFolder: 8. Watchlist
+		lineageTag: 0f6c301b-45fa-4f6e-a335-56045a88e9ac
+
+	measure 'Product Loss' = IF([All-Time Profit] < 0, [All-Time Profit])
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 7d62443d-4a6c-4a99-98cd-a98b76079654
+
+	measure 'Product Loss Sales' = IF([All-Time Profit] < 0, CALCULATE([Transactions], REMOVEFILTERS('mydata date'), 'mydata transactions'[profit_margin] < 0))
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 160f26d3-1668-4abb-822c-bcb94cff2f59
+
+	measure 'Worst Single Sale' = IF([All-Time Profit] < 0, CALCULATE(MIN('mydata transactions'[profit_margin]), REMOVEFILTERS('mydata date')))
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 0fd26ffc-31fe-46d8-9183-bacf436b15fe
+
+	measure 'All-Time Loss-Making Products' = COALESCE(COUNTROWS(FILTER(VALUES('mydata products'[product_code]), [All-Time Profit] < 0)), 0)
+		formatString: 0
+		displayFolder: 8. Watchlist
+		lineageTag: 5458e907-4ad1-4c4b-89f6-12cb9d42b1db
+
+	measure 'All-Time Product Losses' = SUMX(FILTER(VALUES('mydata products'[product_code]), [All-Time Profit] < 0), [All-Time Profit])
+		formatString: #,0
+		displayFolder: 8. Watchlist
+		lineageTag: 1a2db56a-52f6-4fa7-b163-8a8b51146eea
+
+	measure 'Market Alert' = "⚠ " & [Loss-Making Markets] & " losing · " & [Inactive Markets] & " inactive · " & [Declining Markets] & " declining · " & [Markets To Watch] & " to watch  ›"
+		displayFolder: 8. Watchlist
+		lineageTag: 5f75b3f9-06b9-4c76-a265-f8e2aec1ec4f
+
+	measure 'Customer Alert' = "⚠ " & [Customers At Risk Count] & " at risk · " & [Customers To Watch] & " to watch · " & [Lost Customer-Market Pairs] & " lost relationships  ›"
+		displayFolder: 8. Watchlist
+		lineageTag: 3cab17d1-f985-4a37-8b6c-4bfa72787e82
+
+	measure 'Product Alert' = "⚠ " & [All-Time Loss-Making Products] & " loss-making · " & [Products Margin Turned Negative] & " margin turned negative  ›"
+		displayFolder: 8. Watchlist
+		lineageTag: d62d0ee3-5cbf-49b3-a3d9-9b885137fd19
+
+	/// Revenue of the last 6 months of data (ignores the date slicers)
+	measure 'Revenue Last 6M' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Revenue], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= Cutoff)
+		formatString: #,0
+		displayFolder: 9. Status
+		lineageTag: d3c7440f-892a-4f6a-b37a-afd790c2087d
+
+	/// Revenue of the same 6 months one year earlier
+	measure 'Revenue Same 6M LY' =
+			VAR StartLY = EDATE([Churn Cutoff Date], -12)
+			VAR EndLY = EDATE([Last Data Date], -12)
+			RETURN
+			    CALCULATE([Revenue], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= StartLY, 'mydata transactions'[order_date] <= EndLY)
+		formatString: #,0
+		displayFolder: 9. Status
+		lineageTag: 0931508e-a3cf-4751-b135-e72476c20991
+
+	measure 'Revenue YoY 6M %' =
+			VAR PrevYearValue = [Revenue Same 6M LY]
+			RETURN
+			    IF(NOT ISBLANK(PrevYearValue), DIVIDE(COALESCE([Revenue Last 6M], 0) - PrevYearValue, PrevYearValue))
+		formatString: +0%;-0%;0%
+		displayFolder: 9. Status
+		lineageTag: 9d5ba21f-df52-4493-8ca6-802677d4c695
+
+	measure 'Orders Same 6M LY' =
+			VAR StartLY = EDATE([Churn Cutoff Date], -12)
+			VAR EndLY = EDATE([Last Data Date], -12)
+			RETURN
+			    CALCULATE([Transactions], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= StartLY, 'mydata transactions'[order_date] <= EndLY)
+		formatString: #,0
+		displayFolder: 9. Status
+		lineageTag: 3ef58a5f-1da8-4837-8378-d3259551a8f1
+
+	measure 'Order YoY 6M %' =
+			VAR PrevYearValue = [Orders Same 6M LY]
+			RETURN
+			    IF(NOT ISBLANK(PrevYearValue), DIVIDE(COALESCE([Orders Since Cutoff Global], 0) - PrevYearValue, PrevYearValue))
+		formatString: +0%;-0%;0%
+		displayFolder: 9. Status
+		lineageTag: c9918cb9-4390-49e4-8b6c-35b918650334
+
+	/// The same indicators for the whole company (benchmark)
+	measure 'Company Revenue Trend %' = CALCULATE([Revenue Trend %], REMOVEFILTERS('mydata markets'), REMOVEFILTERS('mydata customers'), REMOVEFILTERS('mydata products'))
+		formatString: +0%;-0%;0%
+		displayFolder: 9. Status
+		lineageTag: e5db8e6e-9db5-4bc5-9b18-672388b714a1
+
+	measure 'Company Revenue YoY 6M %' = CALCULATE([Revenue YoY 6M %], REMOVEFILTERS('mydata markets'), REMOVEFILTERS('mydata customers'), REMOVEFILTERS('mydata products'))
+		formatString: +0%;-0%;0%
+		displayFolder: 9. Status
+		lineageTag: 44771bcc-ff5d-43c9-8498-206954d71caa
+
+	measure 'Company Order Trend %' = CALCULATE([Order Trend %], REMOVEFILTERS('mydata markets'), REMOVEFILTERS('mydata customers'), REMOVEFILTERS('mydata products'))
+		formatString: +0%;-0%;0%
+		displayFolder: 9. Status
+		lineageTag: 67521d9d-ebd9-49c7-bfd9-76ce637a10a8
+
+	measure 'Company Order YoY 6M %' = CALCULATE([Order YoY 6M %], REMOVEFILTERS('mydata markets'), REMOVEFILTERS('mydata customers'), REMOVEFILTERS('mydata products'))
+		formatString: +0%;-0%;0%
+		displayFolder: 9. Status
+		lineageTag: f7013c75-10b7-4556-9026-ab668eb41e12
+
+	/// Gap with the company, in points: negative = doing worse than the company
+	measure 'Revenue Trend vs Company' = IF(NOT ISBLANK([Revenue Trend %]), ([Revenue Trend %] - [Company Revenue Trend %]) * 100)
+		formatString: +0" pts";-0" pts";0" pts"
+		displayFolder: 9. Status
+		lineageTag: 35baef70-2eaf-4768-b0d7-fc61494ab594
+
+	measure 'Revenue YoY vs Company' = IF(NOT ISBLANK([Revenue YoY 6M %]), ([Revenue YoY 6M %] - [Company Revenue YoY 6M %]) * 100)
+		formatString: +0" pts";-0" pts";0" pts"
+		displayFolder: 9. Status
+		lineageTag: 0d84b7ac-8a5c-4d81-8e96-203eadabb461
+
+	measure 'Order Trend vs Company' = IF(NOT ISBLANK([Order Trend %]), ([Order Trend %] - [Company Order Trend %]) * 100)
+		formatString: +0" pts";-0" pts";0" pts"
+		displayFolder: 9. Status
+		lineageTag: 8d09166d-1d94-4c17-8a7b-4d7bf67bcd67
+
+	measure 'Order YoY vs Company' = IF(NOT ISBLANK([Order YoY 6M %]), ([Order YoY 6M %] - [Company Order YoY 6M %]) * 100)
+		formatString: +0" pts";-0" pts";0" pts"
+		displayFolder: 9. Status
+		lineageTag: 46840e64-d53c-46a7-b579-db8c9e99ab03
+
+	/// Customer status, built like the market status but on the number of orders
+	measure 'Customer Status' =
+			VAR FirstOrder = [Customer First Order]
+			VAR DaysSince = [Days Since Last Order]
+			VAR GapTrend = [Order Trend vs Company]
+			VAR GapYoY = [Order YoY vs Company]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(DaysSince), BLANK(),
+			        FirstOrder >= [Churn Cutoff Date], "New",
+			        DaysSince > 90, "Inactive",
+			        GapTrend < -10 && GapYoY < -10, "At risk",
+			        GapTrend < -10 || GapYoY < -10, "To watch",
+			        GapTrend > 10 && GapYoY > 10, "Outperforming",
+			        [Order Trend %] < 0, "Down with the company",
+			        "Stable"
+			    )
+		displayFolder: 9. Status
+		lineageTag: 9a69e1be-53ca-43cb-a393-a0fbb09dbf54
+
+	/// Product watch status: losses first, then margins that are getting worse
+	measure 'Product Status' =
+			VAR P = [All-Time Profit]
+			VAR LossSales = CALCULATE([Transactions], REMOVEFILTERS('mydata date'), 'mydata transactions'[profit_margin] < 0)
+			VAR MarginBefore = [Margin Before Cutoff]
+			VAR MarginLast = [Margin Last 6M]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(P), BLANK(),
+			        P < 0 && LossSales <= 3, "One-off loss",
+			        P < 0, "Recurring loss",
+			        MarginBefore > 0 && MarginLast < 0, "Margin turned negative",
+			        MarginBefore - MarginLast > 0.05, "Margin falling",
+			        "OK"
+			    )
+		displayFolder: 9. Status
+		lineageTag: ba8ad8fd-8f7a-4961-b147-9e27ac784d4c
+
+	measure 'Margin Before Cutoff' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Profit Margin %], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] < Cutoff)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 9. Status
+		lineageTag: f3b1d1b5-be56-41c9-bb88-5b579d71e46f
+
+	measure 'Margin Last 6M' =
+			VAR Cutoff = [Churn Cutoff Date]
+			RETURN
+			    CALCULATE([Profit Margin %], REMOVEFILTERS('mydata date'), 'mydata transactions'[order_date] >= Cutoff)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 9. Status
+		lineageTag: c73402c8-4eea-4115-9c41-c60b3626815d
+
+	measure 'Watch Margin Before' = IF(NOT ISBLANK([Product Status]) && [Product Status] <> "OK", [Margin Before Cutoff])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 9. Status
+		lineageTag: 9df78a54-cab2-41ec-a509-d56936ad01e9
+
+	measure 'Watch Margin Last 6M' = IF(NOT ISBLANK([Product Status]) && [Product Status] <> "OK", [Margin Last 6M])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 9. Status
+		lineageTag: 78d508d1-de2a-4a49-ae36-3a30e24f71ea
+
+	measure 'Watch Profit' = IF(NOT ISBLANK([Product Status]) && [Product Status] <> "OK", [All-Time Profit])
+		formatString: #,0
+		displayFolder: 9. Status
+		lineageTag: dcb0ef3f-0db2-4e7e-a3a0-bda54e3eb868
+
+	measure 'Watch Worst Sale' = IF(NOT ISBLANK([Product Status]) && [Product Status] <> "OK", CALCULATE(MIN('mydata transactions'[profit_margin]), REMOVEFILTERS('mydata date')))
+		formatString: #,0
+		displayFolder: 9. Status
+		lineageTag: e42cedce-2d0e-469d-8c50-3fe1d4b34895
+
+	/// One colour per status, used by markets, customers and products
+	measure 'Any Status Color' =
+			VAR MarketLbl = COALESCE([Market Status], "")
+			VAR CustomerLbl = COALESCE([Customer Status], "")
+			VAR ProductLbl = COALESCE([Product Status], "")
+			VAR StatusLbl = IF(ISINSCOPE('mydata products'[product_code]), ProductLbl, IF(ISINSCOPE('mydata customers'[customer_name]), CustomerLbl, MarketLbl))
+			RETURN
+			    SWITCH(
+			        StatusLbl,
+			        "Inactive", "#7F7F7F",
+			        "Losing money", "#C0392B",
+			        "Recurring loss", "#C0392B",
+			        "One-off loss", "#7F3FBF",
+			        "Declining", "#E8833A",
+			        "At risk", "#E8833A",
+			        "Margin turned negative", "#E8833A",
+			        "To watch", "#C9A227",
+			        "Margin falling", "#C9A227",
+			        "Down with the company", "#5B7DB1",
+			        "Outperforming", "#2E9E5B",
+			        "New", "#2E9E5B",
+			        "#118DFF"
+			    )
+		displayFolder: 9. Status
+		lineageTag: 2550255b-bb87-4355-9b37-36a97a30039a
+
+	measure 'Gap Color' =
+			VAR G = COALESCE([Revenue Trend vs Company], [Order Trend vs Company])
+			RETURN
+			    SWITCH(TRUE(), G < -10, "#E8833A", G > 10, "#2E9E5B", "#5B7DB1")
+		displayFolder: 9. Status
+		lineageTag: 70845f11-78c6-4721-a36e-e097ad40ae04
+
+	measure 'Markets To Watch' = COALESCE(COUNTROWS(FILTER(VALUES('mydata markets'[markets_name]), [Market Status] = "To watch")), 0)
+		formatString: 0
+		displayFolder: 9. Status
+		lineageTag: 293af1d0-bfbe-4645-8f43-d1d315e520e9
+
+	measure 'Customers At Risk Count' = COALESCE(COUNTROWS(FILTER(VALUES('mydata customers'[customer_name]), [Customer Status] = "At risk")), 0)
+		formatString: 0
+		displayFolder: 9. Status
+		lineageTag: 5da80e1e-8463-4e7b-8831-f6a0fc6386b6
+
+	measure 'Customers To Watch' = COALESCE(COUNTROWS(FILTER(VALUES('mydata customers'[customer_name]), [Customer Status] = "To watch")), 0)
+		formatString: 0
+		displayFolder: 9. Status
+		lineageTag: ea47e1d0-0950-4989-8795-4e87cb158027
+
+	measure 'Products Margin Turned Negative' = COALESCE(COUNTROWS(FILTER(VALUES('mydata products'[product_code]), [Product Status] = "Margin turned negative")), 0)
+		formatString: 0
+		displayFolder: 9. Status
+		lineageTag: 410cb78d-0934-4a7c-9948-772197e246bf
+
+	/// Priority level grouping the statuses: 1 = act, 2 = watch, 3 = OK
+	measure Priority =
+			VAR MarketLbl = COALESCE([Market Status], "")
+			VAR CustomerLbl = COALESCE([Customer Status], "")
+			VAR ProductLbl = COALESCE([Product Status], "")
+			VAR StatusLbl = IF(ISINSCOPE('mydata products'[product_code]), ProductLbl, IF(ISINSCOPE('mydata customers'[customer_name]), CustomerLbl, MarketLbl))
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        StatusLbl = "", BLANK(),
+			        StatusLbl IN {"Inactive", "Losing money", "Declining", "At risk", "One-off loss", "Recurring loss", "Margin turned negative"}, "1 · Act",
+			        StatusLbl IN {"To watch", "Down with the company", "Margin falling"}, "2 · Watch",
+			        "3 · OK"
+			    )
+		displayFolder: 9. Status
+		lineageTag: 8f98a7e7-18e4-410b-aa32-06ba169e6553
+
+	measure 'Priority Color' = SWITCH(LEFT([Priority], 1), "1", "#C0392B", "2", "#E8833A", "3", "#2E9E5B")
+		displayFolder: 9. Status
+		lineageTag: 1eee48a5-b094-4961-a8ee-315e22326b4c
+
+	/// Profit lost on the sales made at a loss (negative number)
+	measure 'Losses on Loss Sales' = CALCULATE([Profit], 'mydata transactions'[profit_margin] < 0)
+		formatString: #,0
+		displayFolder: 10. What-if
+		lineageTag: 2ad92515-48d9-4d6c-9337-6917346f08b0
+
+	measure 'Profit if Losses Reduced' = [Profit] - [Losses on Loss Sales] * [Loss Reduction Value]
+		formatString: #,0
+		displayFolder: 10. What-if
+		lineageTag: 679d05ec-3861-45ef-91de-19eae755acc5
+
+	measure 'Margin if Losses Reduced' = DIVIDE([Profit if Losses Reduced], [Revenue])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: 10. What-if
+		lineageTag: 5270f163-9c10-4037-8d51-65414c3516e2
+
+	measure 'Profit Uplift %' = DIVIDE([Profit if Losses Reduced] - [Profit], [Profit])
+		formatString: +0%;-0%;0%
+		displayFolder: 10. What-if
+		lineageTag: 5f7ed273-2a5f-4d25-b3cc-f09692850341
+
+	column Value
+		isHidden
+		formatString: 0
+		lineageTag: d391af45-6569-4604-bbb1-0ec8f7ee4ea9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source = {0}
+
+	annotation PBI_Id = dac25505a8dc49508b6edbf1f48e7ee4
+

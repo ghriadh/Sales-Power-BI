@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "76c7253e88e58eced065",
+  "displayName": "Product Details",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "pageBinding": {
+    "name": "0026a4b1a81b4e5abc0d",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "4a1584463a26421a80b2",
+        "boundFilter": "d96e100f76984d669930",
+        "asAggregation": false,
+        "qnaSingleSelectRequired": false,
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "mydata products"
+              }
+            },
+            "Property": "product_code"
+          }
+        }
+      }
+    ],
+    "acceptsFilterContext": "None"
+  },
+  "visualInteractions": [
+    {
+      "source": "609cd144a57210c1168c",
+      "target": "5fc1efbbe6954bf4b44a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "eb42f9c7b5c4172304ea",
+      "target": "5fc1efbbe6954bf4b44a",
+      "type": "NoFilter"
+    }
+  ],
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "d96e100f76984d669930",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "mydata products"
+              }
+            },
+            "Property": "product_code"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode"
+}

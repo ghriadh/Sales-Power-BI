@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "80cc4342342b1d005061",
+  "displayName": "Churn & New Customers",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "pageBinding": {
+    "name": "49500b3b3c70d2438381",
+    "type": "Default",
+    "parameters": []
+  }
+}

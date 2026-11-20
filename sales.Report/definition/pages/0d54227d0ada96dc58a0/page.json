@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "0d54227d0ada96dc58a0",
+  "displayName": "Markets",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "pageBinding": {
+    "name": "83fe179ea1ae03a8b0ec",
+    "type": "Default",
+    "parameters": []
+  },
+  "objects": {
+    "outspacePane": [
+      {
+        "properties": {
+          "width": {
+            "expr": {
+              "Literal": {
+                "Value": "183L"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "d9c3b239331650927763",
+      "target": "5389bdf69e8c250937d1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "d9c3b239331650927763",
+      "target": "b6f1a3c5059c6b07b00a",
+      "type": "NoFilter"
+    }
+  ]
+}

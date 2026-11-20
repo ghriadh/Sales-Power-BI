@@ -1,0 +1,16 @@
+relationship AutoDetected_3f50fbd5-ce2a-4312-a030-fa66ff52d5eb
+	fromColumn: 'mydata transactions'.product_code
+	toColumn: 'mydata products'.product_code
+
+relationship AutoDetected_ea5644bd-7727-4787-81b0-63e9e024e103
+	fromColumn: 'mydata transactions'.customer_code
+	toColumn: 'mydata customers'.customer_code
+
+relationship bf959a2c-a34c-f226-032f-5793c6e4eaa5
+	fromColumn: 'mydata transactions'.market_code
+	toColumn: 'mydata markets'.markets_code
+
+relationship bc5e0427-950e-4162-23b3-713b9c5bb2ee
+	fromColumn: 'mydata transactions'.order_date
+	toColumn: 'mydata date'.date
+

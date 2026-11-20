@@ -1,0 +1,25 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["mydata transactions","mydata products","mydata markets","mydata date","mydata customers","KPI Selector","DataFolder"]
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table 'mydata transactions'
+ref table 'mydata products'
+ref table 'mydata markets'
+ref table 'mydata date'
+ref table 'mydata customers'
+ref table _Measures
+ref table 'KPI Selector'
+ref table 'Loss Reduction'
+
+ref cultureInfo en-US
+

@@ -1,0 +1,21 @@
+table 'Loss Reduction'
+	lineageTag: ca1449dd-21d2-4c26-98c9-8bb4e566238f
+
+	/// What-if: share of today's losses on loss-making sales that would be removed (0% = today)
+	measure 'Loss Reduction Value' = SELECTEDVALUE('Loss Reduction'[Loss Reduction], 0)
+		formatString: 0%
+		lineageTag: 3dc0a8dc-a0ae-44d3-b466-398166a2f0bb
+
+	column 'Loss Reduction'
+		dataType: double
+		formatString: 0%
+		lineageTag: 304eaad7-97b3-4768-ab87-74c4f5a311dc
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = User
+
+	partition 'Loss Reduction' = calculated
+		mode: import
+		source = SELECTCOLUMNS(GENERATESERIES(0, 5, 1), "Value", [Value] / 10)
+

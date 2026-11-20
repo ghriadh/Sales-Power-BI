@@ -1,0 +1,141 @@
+table 'mydata date'
+	lineageTag: 163ec6c6-d29c-4ef3-94a3-eb2a11af2da3
+	dataCategory: Time
+
+	column date
+		dataType: dateTime
+		isKey
+		formatString: dd-mm-yyyy
+		lineageTag: edaef65e-560f-4d03-82a3-56123c004cd4
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column cy_date
+		dataType: dateTime
+		formatString: Mmmm yyyy
+		lineageTag: 35690720-b386-444d-a780-dfd2d6eb91ef
+		summarizeBy: none
+		sourceColumn: cy_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f2e752a-9058-4ece-bccc-424bf0429ae9
+		summarizeBy: sum
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_name
+		dataType: string
+		lineageTag: 96a70481-3f74-4efc-92ba-3e48dbfc07dc
+		summarizeBy: none
+		sourceColumn: month_name
+		sortByColumn: month_nb
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_yy_mmm
+		dataType: string
+		lineageTag: 591a63c0-e805-4de5-92eb-cda35371047e
+		summarizeBy: none
+		sourceColumn: date_yy_mmm
+		sortByColumn: cy_date
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_nb
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b483053-7e5d-4435-9423-b10f9b69d451
+		summarizeBy: sum
+		sourceColumn: month_nb
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter = "Q" & ROUNDUP(MONTH('mydata date'[date]) / 3, 0)
+		dataType: string
+		lineageTag: 59807e44-108e-49d8-9e3c-ace3b5b5efb6
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column day = DAY('mydata date'[date])
+		dataType: int64
+		formatString: 0
+		lineageTag: edfafd62-6dff-4d98-9baa-10bb5400d478
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column weekday = SWITCH(WEEKDAY('mydata date'[date], 2), 1, "Mon", 2, "Tue", 3, "Wed", 4, "Thu", 5, "Fri", 6, "Sat", "Sun")
+		dataType: string
+		lineageTag: 69e732f8-c855-4cfe-9039-ae182cab8dbd
+		summarizeBy: none
+		sortByColumn: weekday_nb
+
+		annotation SummarizationSetBy = Automatic
+
+	column weekday_nb = WEEKDAY('mydata date'[date], 2)
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9beaed2a-1f28-4ccd-b32c-ea108ea06082
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy Calendar
+		lineageTag: 4e55b797-8e1d-4a14-863d-42eb7fb23adf
+
+		level Year
+			lineageTag: 045e1399-b772-447a-8546-e1d4816ae739
+			column: year
+
+		level Quarter
+			lineageTag: d668ecf2-4fc6-41ef-94eb-36be305ee908
+			column: quarter
+
+		level Month
+			lineageTag: 35d6e40a-312e-449d-bf88-59f86d422315
+			column: month_name
+
+		level Day
+			lineageTag: eb9feee9-9bde-4ec6-8e24-117781bf7a24
+			column: day
+
+	partition 'mydata date' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "date.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    mydata_date = Table.TransformColumnTypes(#"Promoted Headers", {{"date", type date}, {"cy_date", type date}, {"year", Int64.Type}, {"month_name", type text}, {"date_yy_mmm", type text}}, "en-US"),
+				    #"Added Custom" = Table.AddColumn(mydata_date, "Custom", each Date.Month([date])),
+				    #"Renamed Columns" = Table.RenameColumns(#"Added Custom",{{"Custom", "month_nb"}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Renamed Columns", each [date] >= #date(2017, 10, 1))
+				in
+				    #"Filtered Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

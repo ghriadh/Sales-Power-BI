@@ -1,0 +1,21 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmarksMetadata/1.0.0/schema.json",
+  "items": [
+    {
+      "name": "5573e2eb54795f351531",
+      "displayName": "Markets_bookmap",
+      "children": [
+        "8aa9058e4629eb13779e",
+        "48c3ed95e3702a510a95"
+      ]
+    },
+    {
+      "name": "0864a80c98dd045d191d",
+      "displayName": "General",
+      "children": [
+        "ea78698eb94ce914aede",
+        "f5af9ae39835e3d89408"
+      ]
+    }
+  ]
+}

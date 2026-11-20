@@ -1,0 +1,126 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 47
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 330,
+            "y": 221
+          },
+          "nodeIndex": "mydata transactions",
+          "nodeLineageTag": "f9c23b8d-07cc-44f2-a1da-9d49b9156a26",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 281
+          },
+          "nodeIndex": "mydata customers",
+          "nodeLineageTag": "a1ada09b-a8c7-4d48-99ac-e2a1728672df",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 417,
+            "y": 569
+          },
+          "nodeIndex": "mydata date",
+          "nodeLineageTag": "163ec6c6-d29c-4ef3-94a3-eb2a11af2da3",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 331,
+            "y": 0
+          },
+          "nodeIndex": "mydata markets",
+          "nodeLineageTag": "0be02185-4a62-4dee-ab0f-45eee4c607e0",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 663,
+            "y": 312
+          },
+          "nodeIndex": "mydata products",
+          "nodeLineageTag": "7df39735-a4f7-4b8e-9655-999b162adc5b",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 608,
+            "y": 0
+          },
+          "nodeIndex": "_Measures",
+          "nodeLineageTag": "df8ca36b-451d-419d-be09-5b4da7843c4f",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 894,
+            "y": 3
+          },
+          "nodeIndex": "KPI Selector",
+          "nodeLineageTag": "499f8147-4c35-4677-880f-823af25fb729",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 910,
+            "y": 180.5
+          },
+          "nodeIndex": "Loss Reduction",
+          "nodeLineageTag": "ca1449dd-21d2-4c26-98c9-8bb4e566238f",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 7
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

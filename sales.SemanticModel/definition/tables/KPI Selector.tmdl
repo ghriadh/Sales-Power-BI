@@ -1,0 +1,58 @@
+table 'KPI Selector'
+	lineageTag: 499f8147-4c35-4677-880f-823af25fb729
+
+	measure 'Selected KPI' = SELECTEDVALUE('KPI Selector'[Value], "Revenue")
+		displayFolder: KPI Selector
+		lineageTag: aeaa6ab2-49da-43e3-a87d-a636caafc15d
+
+	/// Value of the KPI chosen in the KPI slicer
+	measure 'KPI Value' =
+			SWITCH(
+			    [Selected KPI],
+			    "Revenue", [Revenue],
+			    "Profit", [Profit],
+			    "Profit Rate", [Profit Margin %],
+			    "Quantity", [Quantity],
+			    "Transaction", [Transactions],
+			    "Cost", [Cost],
+			    [Revenue]
+			)
+		displayFolder: KPI Selector
+		lineageTag: ef608870-6065-4505-adbd-730c4c1842ca
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: 8df04096-5f7f-4659-8bf0-a88994f106c8
+		summarizeBy: sum
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value
+		dataType: string
+		lineageTag: 7b09d099-0080-4e43-b90e-40c6ab2ff977
+		summarizeBy: none
+		sourceColumn: Value
+		sortByColumn: Index
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'KPI Selector' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMlTSUQpKLUvNK00FspRidaKVjICMgKL8tMwSmIgxkBFSlJhXnJhckpmfBxM2gStUUIWJmQIZzvnFcK1mQEZgaWJeSWYJxIJYAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Index = _t, Value = _t, Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Index", Int64.Type}, {"Value", type text}, {"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Removed Columns","Profit %","Profit Rate",Replacer.ReplaceText,{"Value"}),
+				    #"Fixed Quantity Label" = Table.ReplaceValue(#"Replaced Value","Quantite","Quantity",Replacer.ReplaceValue,{"Value"})
+				in
+				    #"Fixed Quantity Label"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

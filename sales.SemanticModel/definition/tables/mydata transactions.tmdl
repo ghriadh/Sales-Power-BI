@@ -1,0 +1,189 @@
+table 'mydata transactions'
+	lineageTag: f9c23b8d-07cc-44f2-a1da-9d49b9156a26
+
+	column product_code
+		dataType: string
+		isHidden
+		lineageTag: 04b0d9ce-932c-4943-a260-dac5d6757fcc
+		summarizeBy: none
+		sourceColumn: product_code
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_code
+		dataType: string
+		isHidden
+		lineageTag: fa36a38b-eb52-4344-a9d3-7c44ab78b135
+		summarizeBy: none
+		sourceColumn: customer_code
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column market_code
+		dataType: string
+		isHidden
+		lineageTag: 46fb851c-79f0-431c-8a87-249fe69beb02
+		summarizeBy: none
+		sourceColumn: market_code
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: dd-mm-yyyy
+		lineageTag: 4ba386a1-865b-446d-b8e1-5ff7dd2f3596
+		summarizeBy: none
+		sourceColumn: order_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column sales_qty
+		dataType: int64
+		formatString: 0
+		lineageTag: f954e13d-5406-400d-bb04-2b67b7bc9202
+		summarizeBy: sum
+		sourceColumn: sales_qty
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column sale_amount
+		dataType: double
+		lineageTag: 4a7b0540-30f0-4282-b543-c2ec00b8e9f9
+		summarizeBy: sum
+		sourceColumn: sale_amount
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column currency
+		dataType: string
+		lineageTag: b65d8c1b-b825-47bc-8abf-400984e5511e
+		summarizeBy: none
+		sourceColumn: currency
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column profit_margin_percentage
+		dataType: double
+		lineageTag: cc7718da-3517-4aac-a40a-13b40dfca324
+		summarizeBy: sum
+		sourceColumn: profit_margin_percentage
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column profit_margin
+		dataType: double
+		lineageTag: 7214f677-d85b-401f-b979-57774e8ee887
+		summarizeBy: sum
+		sourceColumn: profit_margin
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cost_price
+		dataType: double
+		lineageTag: fb2d6562-9682-46e1-8934-90f14288cdb5
+		summarizeBy: sum
+		sourceColumn: cost_price
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cur_value
+		dataType: string
+		lineageTag: 1b2f2c91-77d6-463f-8539-5f66cdc1bfc1
+		summarizeBy: none
+		sourceColumn: cur_value
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column sales_amount
+		dataType: double
+		lineageTag: dca41279-e96a-4a10-a255-0b0cebbe2e0f
+		summarizeBy: sum
+		sourceColumn: sales_amount
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Order Size' =
+			VAR R = 'mydata transactions'[sales_amount]
+			RETURN
+			    SWITCH(TRUE(), R < 1000, "< 1K", R < 10000, "1K-10K", R < 100000, "10K-100K", R < 1000000, "100K-1M", "> 1M")
+		dataType: string
+		lineageTag: eef7e4cb-dd31-4e4b-953f-78a8f5173dc4
+		summarizeBy: none
+		sortByColumn: 'Order Size Rank'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Order Size Rank' =
+			VAR R = 'mydata transactions'[sales_amount]
+			RETURN
+			    SWITCH(TRUE(), R < 1000, 1, R < 10000, 2, R < 100000, 3, R < 1000000, 4, 5)
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2372ee7c-25ce-41a4-80ce-7cffb0be57dc
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'mydata transactions' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "transactions.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    mydata_transactions = Table.TransformColumnTypes(#"Promoted Headers", {{"product_code", type text}, {"customer_code", type text}, {"market_code", type text}, {"order_date", type date}, {"sales_qty", Int64.Type}, {"sales_amount", type number}, {"currency", type text}, {"profit_margin_percentage", type number}, {"profit_margin", type number}, {"cost_price", type number}}, "en-US"),
+				    #"Filtered Rows" = Table.SelectRows(mydata_transactions, each true),
+				    #"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"order_date", Order.Ascending}}),
+				    #"Added Conditional Column" = Table.AddColumn(#"Sorted Rows", "sales_mnt", each if [currency] = "USD" then 75 else if [currency] = "INR" then 1 else "NA"),
+				    #"Reordered Columns1" = Table.ReorderColumns(#"Added Conditional Column",{"product_code", "customer_code", "market_code", "order_date", "sales_qty", "sales_amount", "sales_mnt", "currency", "profit_margin_percentage", "profit_margin", "cost_price"}),
+				    #"Added Custom" = Table.AddColumn(#"Reordered Columns1", "sale_mnt", each [sales_amount]*[sales_mnt]),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Added Custom",{"product_code", "customer_code", "market_code", "order_date", "sales_qty", "currency", "sales_amount", "sales_mnt", "sale_mnt", "profit_margin_percentage", "profit_margin", "cost_price"}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Reordered Columns", each true),
+				    #"Renamed Columns" = Table.RenameColumns(#"Filtered Rows1",{{"sales_amount", "sale_amount"}, {"sale_mnt", "sales_amount"}, {"sales_mnt", "cur_value"}}),
+				    #"Reordered Columns2" = Table.ReorderColumns(#"Renamed Columns",{"product_code", "customer_code", "market_code", "order_date", "sales_qty", "currency", "cur_value", "sale_amount", "sales_amount", "profit_margin_percentage", "profit_margin", "cost_price"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Reordered Columns2",{{"sales_amount", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

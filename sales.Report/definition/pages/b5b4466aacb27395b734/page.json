@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "b5b4466aacb27395b734",
+  "displayName": "Customer Details",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "pageBinding": {
+    "name": "e29e8f7dbecd4ca39768",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "871dfdb15bc2402886d9",
+        "boundFilter": "44fb6ca14e1f4ac1bf4b",
+        "asAggregation": false,
+        "qnaSingleSelectRequired": false,
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "mydata customers"
+              }
+            },
+            "Property": "customer_name"
+          }
+        }
+      }
+    ],
+    "acceptsFilterContext": "None"
+  },
+  "visualInteractions": [
+    {
+      "source": "2a658d3eed15c77a0436",
+      "target": "5e1a6005a6aa4141aea8",
+      "type": "NoFilter"
+    },
+    {
+      "source": "8a1c156a0be5c09bd0c5",
+      "target": "5e1a6005a6aa4141aea8",
+      "type": "NoFilter"
+    }
+  ],
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "44fb6ca14e1f4ac1bf4b",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "mydata customers"
+              }
+            },
+            "Property": "customer_name"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode"
+}
